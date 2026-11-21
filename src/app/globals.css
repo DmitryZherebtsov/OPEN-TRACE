@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --brand-deep: #4c1d95;
-  --brand-primary: #6d28d9;
-  --brand-soft: #ede9fe;
-  --surface-bg: #f8fafc;
-  --surface-card: #ffffff;
-  --ink-primary: #0f172a;
-  --ink-secondary: #475569;
+  --shell-topbar: #21252d;
+  --shell-sidebar: #282c34;
+  --shell-sidebar-profile: #323742;
+  --shell-canvas: #eef0f4;
+  --accent-purple: #7c3aed;
+  --accent-purple-dark: #6d28d9;
+  --accent-purple-deep: #5b21b6;
+  --accent-purple-soft: #a78bfa;
+  --ink-primary: #374151;
+  --ink-muted: #6b7280;
 }
 
 * {
@@ -16,9 +19,10 @@
 
 html,
 body {
-  background-color: var(--surface-bg);
+  background-color: var(--shell-canvas);
   color: var(--ink-primary);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-family: "Segoe UI", ui-sans-serif, system-ui, -apple-system, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -26,10 +30,18 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.radar-hero-bg {
-  background-color: #1e1042;
-  background-image:
-    radial-gradient(circle at 82% 24%, rgba(109, 40, 217, 0.42), transparent 46%),
-    radial-gradient(circle at 18% 85%, rgba(76, 29, 149, 0.55), transparent 50%),
-    linear-gradient(135deg, #1b0c3b 0%, #311068 55%, #4c1d95 100%);
-}
+
+  /* Charakterystyczne płaskie karty Flat Able z fioletowym górnym paskiem akcentu */
+  .flat-card {
+    background-color: #ffffff;
+    border-radius: 2px;
+    border-top: 2px solid #7c3aed;
+    box-shadow: 0 1px 2px 0 rgba(33, 37, 45, 0.08);
+  }
+
+  .flat-card-gray {
+    background-color: #ffffff;
+    border-radius: 2px;
+    border-top: 2px solid #6b7280;
+    box-shadow: 0 1px 2px 0 rgba(33, 37, 45, 0.08);
+  }

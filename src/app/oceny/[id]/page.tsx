@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { serializeEvaluation } from "@/lib/serializers";
 import { EvaluationDetail } from "@/components/EvaluationDetail";
@@ -25,16 +25,37 @@ export default async function EvaluationDetailPage({
   const evaluation = serializeEvaluation(row);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
-      <Link
-        href="/oceny"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#4C1D95]"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Powrót do listy Ocen Wieloagentowych (3 Tabele)</span>
-      </Link>
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-[19px] font-semibold tracking-tight text-[#374151]">
+              Raport Debaty 4 AI
+            </h1>
+            <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
+              <Link href="/" className="hover:text-[#7c3aed]">
+                <Home className="h-3.5 w-3.5" />
+              </Link>
+              <span>/</span>
+              <Link href="/oceny" className="hover:text-[#7c3aed]">
+                Oceny Wieloagentowe
+              </Link>
+              <span>/</span>
+              <span className="truncate font-medium text-gray-600">
+                {evaluation.projectTitle}
+              </span>
+            </div>
+          </div>
 
-      <EvaluationDetail evaluation={evaluation} />
-    </div>
-  );
+          <Link
+            href="/oceny"
+            className="inline-flex items-center gap-1.5 rounded-[2px] border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-[#7c3aed] hover:text-[#7c3aed]"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Powrót do 3 Tabel</span>
+          </Link>
+        </div>
+
+        <EvaluationDetail evaluation={evaluation} />
+      </div>
+      );
 }

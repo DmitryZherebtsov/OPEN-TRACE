@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  Home,
   Scale,
   Play,
   Loader2,
@@ -12,6 +13,8 @@ import {
   Database,
   FileEdit,
   Eye,
+  MoreHorizontal,
+  Banknote,
 } from "lucide-react";
 import {
   EVALUATION_TABLE_LABELS,
@@ -42,7 +45,7 @@ const DEBATE_STEPS = [
   },
   {
     step: 2,
-    title: "2. AI 4 Weryfikator Źródeł (Fast-Check URL)",
+    title: "2. AI 4 Weryfikator Źródeł (Fast-Check)",
     desc: "Pobranie HTTP z ochroną SSRF, odrzucenie halucynacji i zebranie ≥ 5 realnych źródeł",
   },
   {
@@ -52,7 +55,7 @@ const DEBATE_STEPS = [
   },
   {
     step: 4,
-    title: "4. Wzory PERT, Ryzyko i Routing Budżetowy",
+    title: "4. Wzory PERT, Ryzyko i Routing",
     desc: "Deterministyczne obliczenia TypeScript (C_i, S_total, PERT, R_kryt) i wybór tabeli",
   },
 ];
@@ -63,25 +66,25 @@ const TABLE_TABS: Array<{
   rule: string;
   badgeColor: string;
 }> = [
-  {
-    key: "TABELA_GLOWNA",
-    label: "Tabela Główna",
-    rule: "S_total ≥ 25 pkt oraz K_calk ≤ 1,20 × B_max — rekomendowane do budżetu głównego",
-    badgeColor: "bg-emerald-100 text-emerald-900",
-  },
-  {
-    key: "TABELA_DRUGORZEDNA",
-    label: "Tabela Drugorzędna",
-    rule: "S_total ≥ 25 pkt oraz K_calk > 1,20 × B_max — silne merytorycznie, do grantów zewnętrznych",
-    badgeColor: "bg-amber-100 text-amber-900",
-  },
-  {
-    key: "ARCHIWUM_ODRZUCONE",
-    label: "Archiwum / Odrzucone",
-    rule: "S_total < 25 pkt — wymaga rewizji koncepcji lub narusza kryteria jakości",
-    badgeColor: "bg-rose-100 text-rose-900",
-  },
-];
+    {
+      key: "TABELA_GLOWNA",
+      label: "Tabela Główna",
+      rule: "S_total ≥ 25 pkt oraz K_calk ≤ 1,20 × B_max — rekomendowane do budżetu głównego",
+      badgeColor: "bg-[#7c3aed] text-white",
+    },
+    {
+      key: "TABELA_DRUGORZEDNA",
+      label: "Tabela Drugorzędna",
+      rule: "S_total ≥ 25 pkt oraz K_calk > 1,20 × B_max — silne merytorycznie, do grantów zewnętrznych",
+      badgeColor: "bg-[#4b5563] text-white",
+    },
+    {
+      key: "ARCHIWUM_ODRZUCONE",
+      label: "Archiwum / Odrzucone",
+      rule: "S_total < 25 pkt — wymaga rewizji koncepcji lub narusza kryteria jakości",
+      badgeColor: "bg-rose-600 text-white",
+    },
+  ];
 
 function formatPln(val: number): string {
   return `${Math.round(val).toLocaleString("pl-PL")} PLN`;
@@ -153,9 +156,9 @@ export function EvaluationsWorkspace({
         inputMode === "existing"
           ? { innovationId: selectedInnovationId }
           : {
-              title: customTitle.trim(),
-              description: customDescription.trim(),
-            };
+            title: customTitle.trim(),
+            description: customDescription.trim(),
+          };
 
       const res = await fetch("/api/evaluate", {
         method: "POST",
@@ -189,64 +192,100 @@ export function EvaluationsWorkspace({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Nagłówek i bieżący próg budżetowy */}
-      <section className="radar-hero-bg rounded-3xl p-6 text-white shadow-lg sm:p-7">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-3xl space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-violet-100">
-              <Scale className="h-3.5 w-3.5" />
-              <span>System Wieloagentowej Oceny Projektów („Oceny AI”)</span>
-            </div>
-            <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-              Debata 4 AI · Kalkulacja PERT · Routing Budżetowy
-            </h1>
-            <p className="text-sm text-violet-100/90">
-              AI 1 (Adwokat) + AI 2 (Sceptyk) → AI 4 (Weryfikator Źródeł
-              Fast-Check) → AI 3 (Arbiter) → deterministyczne wzory TypeScript.
-            </p>
-          </div>
+              <div className="space-y-5">
+                {/* Nagłówek i okruszki (Flat Able) */}
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <h1 className="text-[19px] font-semibold tracking-tight text-[#374151]">
+                      Oceny Wieloagentowe (Debata 4 AI)
+                    </h1>
+                    <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
+                      <Link href="/" className="hover:text-[#7c3aed]">
+                        <Home className="h-3.5 w-3.5" />
+                      </Link>
+                      <span>/</span>
+                      <span className="font-medium text-gray-600">
+                        Oceny Wieloagentowe · Kalkulacja PERT · Routing Budżetowy
+                      </span>
+                    </div>
+                  </div>
 
-          <div className="rounded-2xl border border-white/15 bg-white/10 p-4 text-xs backdrop-blur-xs">
-            <div className="text-violet-200">Aktualny budżet instytucji</div>
-            <div className="mt-1 text-lg font-extrabold tabular-nums">
-              B_max = {formatPln(budget.maxBudgetPln)}
-            </div>
-            <div className="mt-0.5 font-semibold text-emerald-300 tabular-nums">
-              Próg 120% (B_limit) = {formatPln(budget.budgetLimitPln)}
-            </div>
-            <Link
-              href="/admin"
-              className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-white underline decoration-violet-300 hover:text-violet-100"
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              <span>Zmień B_max w Panelu Administratora</span>
-            </Link>
-          </div>
-        </div>
-      </section>
+                  <Link
+                    href="/admin"
+                    className="inline-flex items-center gap-1.5 rounded-[2px] border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-[#374151] hover:border-[#7c3aed] hover:text-[#7c3aed]"
+                  >
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-[#7c3aed]" />
+                    <span>
+                      B_max: {formatPln(budget.maxBudgetPln)} · Limit 120%:{" "}
+                      {formatPln(budget.budgetLimitPln)}
+                    </span>
+                  </Link>
+                </div>
 
-      {/* Formularz uruchamiania nowej Debaty 4 AI */}
-      <section className="rounded-2xl border border-violet-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-base font-bold text-slate-900">
-              Uruchom nową Ocenę Wieloagentową (Debata 4 AI)
-            </h2>
-            <p className="text-xs text-slate-500">
-              Oceń istniejącą innowację z bazy OSINT lub wklej opis dowolnej
-              koncepcji projektu do pełnego audytu.
-            </p>
-          </div>
-          <div className="flex gap-1.5">
-            <button
-              type="button"
-              onClick={() => setInputMode("existing")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold ${
-                inputMode === "existing"
-                  ? "bg-[#4C1D95] text-white"
-                  : "bg-slate-100 text-slate-700 hover:bg-violet-50"
-              }`}
+                {/* Górne split-icon banery w stylu Flat Able */}
+                <section className="grid gap-5 md:grid-cols-3">
+                  <div className="flex overflow-hidden rounded-[2px] bg-[#7c3aed] text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+                    <div className="flex w-16 shrink-0 items-center justify-center bg-[#5b21b6]">
+                      <Scale className="h-6 w-6" />
+                    </div>
+                    <div className="px-4 py-3.5">
+                      <div className="text-xl font-bold tabular-nums">
+                        {counts.TABELA_GLOWNA}
+                      </div>
+                      <div className="text-xs text-purple-100">
+                        Projekty w Tabeli Głównej
+                      </div>
+                    </div>
+                  </div>
+
+                      <div className="flex overflow-hidden rounded-[2px] bg-[#4b5563] text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+                        <div className="flex w-16 shrink-0 items-center justify-center bg-[#374151]">
+                          <Banknote className="h-6 w-6 text-[#c4b5fd]" />
+                        </div>
+                        <div className="px-4 py-3.5">
+                          <div className="text-xl font-bold tabular-nums">
+                            {formatPln(budget.budgetLimitPln)}
+                          </div>
+                            <div className="text-xs text-gray-200">
+                              Aktualny próg 120% B_max
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex overflow-hidden rounded-[2px] bg-[#282c34] text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+                          <div className="flex w-16 shrink-0 items-center justify-center bg-[#1e2128]">
+                            <CheckCircle2 className="h-6 w-6 text-[#a78bfa]" />
+                          </div>
+                          <div className="px-4 py-3.5">
+                            <div className="text-xl font-bold tabular-nums">
+                              {evaluations.length}
+                            </div>
+                            <div className="text-xs text-gray-300">
+                              Łączna liczba debat 4 AI
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Formularz uruchamiania nowej Debaty 4 AI */}
+                          <section id="nowa-debata" className="flat-card">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4">
+                              <div>
+                                  <h2 className="text-[15px] font-semibold text-[#374151]">
+                                    Uruchom nową Ocenę Wieloagentową (Debata 4 AI)
+                                  </h2>
+                                    <p className="text-xs text-gray-500">
+                                      Oceń istniejącą innowację z bazy OSINT lub wklej opis dowolnej
+                                      koncepcji projektu.
+                                    </p>
+                                  </div>
+                                  <div className="flex gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setInputMode("existing")}
+                                              ? "bg-[#7c3aed] text-white"
+                                              : "bg-gray-100 text-gray-700 hover:bg-purple-50"
+                                          }`}
             >
               <Database className="h-3.5 w-3.5" />
               <span>Innowacja z bazy OSINT</span>
@@ -254,107 +293,104 @@ export function EvaluationsWorkspace({
             <button
               type="button"
               onClick={() => setInputMode("custom")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold ${
-                inputMode === "custom"
-                  ? "bg-[#4C1D95] text-white"
-                  : "bg-slate-100 text-slate-700 hover:bg-violet-50"
-              }`}
+                                      className = {`inline-flex items-center gap-1.5 rounded-[2px] px-3 py-1.5 text-xs font-semibold ${inputMode === "custom"
+                                            ? "bg-[#7c3aed] text-white"
+                                            : "bg-gray-100 text-gray-700 hover:bg-purple-50"
+                                        }`}
             >
-              <FileEdit className="h-3.5 w-3.5" />
-              <span>Własna koncepcja projektu</span>
-            </button>
-          </div>
-        </div>
+                                    <FileEdit className="h-3.5 w-3.5" />
+                                    <span>Własna koncepcja projektu</span>
+                                  </button>
+                              </div>
+                            </div>
 
-        <form onSubmit={handleRunEvaluation} className="mt-4 space-y-4">
-          {inputMode === "existing" ? (
-            <div>
-              <label
-                htmlFor="eval-innovation-select"
-                className="block text-xs font-semibold text-slate-700"
-              >
-                Wybierz innowację z bazy OPEN TRACE
-              </label>
-              <select
-                id="eval-innovation-select"
-                value={selectedInnovationId}
-                onChange={(e) => setSelectedInnovationId(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:border-[#6D28D9] focus:outline-none focus:ring-2 focus:ring-violet-200"
-              >
-                {innovationOptions.map((opt) => (
-                  <option key={opt.id} value={opt.id}>
-                    [{opt.domain}] {opt.title}
-                    {opt.institution ? ` — ${opt.institution}` : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div>
-                <label
-                  htmlFor="eval-custom-title"
-                  className="block text-xs font-semibold text-slate-700"
-                >
-                  Tytuł projektu
-                </label>
-                <input
-                  id="eval-custom-title"
-                  type="text"
-                  value={customTitle}
-                  onChange={(e) => setCustomTitle(e.target.value)}
-                  placeholder="np. Gminny system wczesnego wykrywania awarii oświetlenia ulicznego LED"
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:border-[#6D28D9] focus:outline-none focus:ring-2 focus:ring-violet-200"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="eval-custom-desc"
-                  className="block text-xs font-semibold text-slate-700"
-                >
-                  Opis koncepcji, problemu, rozwiązania, grupy docelowej i
-                  zakładanych efektów (min. 30 znaków)
-                </label>
-                <textarea
-                  id="eval-custom-desc"
-                  rows={4}
-                  value={customDescription}
-                  onChange={(e) => setCustomDescription(e.target.value)}
-                  placeholder="Opisz problem, sposób realizacji MVP i pilotażu, kwestie RODO/prawne oraz mierzalne wskaźniki KPI..."
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:border-[#6D28D9] focus:outline-none focus:ring-2 focus:ring-violet-200"
-                />
-              </div>
-            </div>
-          )}
+                              <form onSubmit={handleRunEvaluation} className="space-y-4 p-5">
+                                {inputMode === "existing" ? (
+                                  <div>
+                                    <label
+                                      htmlFor="eval-innovation-select"
+                                      className="block text-xs font-semibold text-gray-700"
+                                    >
+                                      Wybierz innowację z bazy OPEN TRACE
+                                    </label>
+                                    <select
+                                      id="eval-innovation-select"
+                                      value={selectedInnovationId}
+                                      onChange={(e) => setSelectedInnovationId(e.target.value)}
+                                      className="mt-1.5 w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 focus:border-[#7c3aed] focus:outline-none"
+                                    >
+                                      {innovationOptions.map((opt) => (
+                                        <option key={opt.id} value={opt.id}>
+                                          [{opt.domain}] {opt.title}
+                                          {opt.institution ? ` — ${opt.institution}` : ""}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-3">
+                                    <div>
+                                      <label
+                                        htmlFor="eval-custom-title"
+                                        className="block text-xs font-semibold text-gray-700"
+                                      >
+                                        Tytuł projektu
+                                      </label>
+                                      <input
+                                        id="eval-custom-title"
+                                        type="text"
+                                        value={customTitle}
+                                        onChange={(e) => setCustomTitle(e.target.value)}
+                                        placeholder="np. Gminny system wczesnego wykrywania awarii oświetlenia ulicznego LED"
+                                        className="mt-1 w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 focus:border-[#7c3aed] focus:outline-none"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label
+                                        htmlFor="eval-custom-desc"
+                                        className="block text-xs font-semibold text-gray-700"
+                                      >
+                                        Opis koncepcji, problemu, rozwiązania, grupy docelowej i
+                                        zakładanych efektów (min. 30 znaków)
+                                      </label>
+                                      <textarea
+                                        id="eval-custom-desc"
+                                        rows={4}
+                                        value={customDescription}
+                                        onChange={(e) => setCustomDescription(e.target.value)}
+                                        placeholder="Opisz problem, sposób realizacji MVP i pilotażu, kwestie RODO/prawne oraz mierzalne wskaźniki KPI..."
+                                        className="mt-1 w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 focus:border-[#7c3aed] focus:outline-none"
+                                      />
+                                    </div>
+                                  </div>
+                                )}
 
-          {/* 4-etapowy wskaźnik postępu Debaty 4 AI */}
-          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-            {DEBATE_STEPS.map((s) => {
-              const isDone =
-                (!running && activeStep === 4) ||
-                (running && activeStep > s.step);
-              const isCurrent = running && activeStep === s.step;
-              return (
-                <div
-                  key={s.step}
-                  className={`rounded-xl border p-3 text-xs transition ${
-                    isCurrent
-                      ? "border-[#6D28D9] bg-violet-50 ring-1 ring-[#6D28D9]"
-                      : isDone
-                        ? "border-emerald-200 bg-emerald-50/60"
-                        : "border-slate-200 bg-slate-50/70"
+                                {/* 4-etapowy wskaźnik postępu Debaty 4 AI */}
+                                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                    {DEBATE_STEPS.map((s) => {
+                                      const isDone =
+                                        (!running && activeStep === 4) ||
+                                        (running && activeStep > s.step);
+                                      const isCurrent = running && activeStep === s.step;
+                                      return (
+                                        <div
+                                          key={s.step}
+                                                  ? "border-[#7c3aed] bg-purple-50"
+                                                  : isDone
+                                                      ? "border-purple-200 bg-purple-50/40"
+                                                      : "border-gray-200 bg-[#f9fafb]"
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-1 font-bold text-slate-900">
+                  <div className="flex items-center justify-between gap-1 font-bold text-[#374151]">
                     <span>{s.title}</span>
                     {isCurrent && (
-                      <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-[#6D28D9]" />
+                      <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-[#7c3aed]" />
                     )}
                     {isDone && (
-                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#7c3aed]" />
                     )}
                   </div>
-                  <p className="mt-1 text-[11px] leading-snug text-slate-600">
+                  <p className="mt-1 text-[11px] leading-snug text-gray-500">
                     {s.desc}
                   </p>
                 </div>
@@ -365,7 +401,7 @@ export function EvaluationsWorkspace({
           {errorMsg && (
             <div
               role="alert"
-              className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-800"
+              className="flex items-start gap-2 rounded-[2px] border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-800"
             >
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
@@ -375,9 +411,9 @@ export function EvaluationsWorkspace({
           {infoMsg && (
             <div
               role="status"
-              className="flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-800"
+              className="flex items-start gap-2 rounded-[2px] border border-purple-200 bg-purple-50 p-3 text-xs font-medium text-[#5b21b6]"
             >
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#7c3aed]" />
               <span>{infoMsg}</span>
             </div>
           )}
@@ -385,7 +421,7 @@ export function EvaluationsWorkspace({
           <button
             type="submit"
             disabled={running}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#4C1D95] to-[#6D28D9] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-[2px] bg-[#7c3aed] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#6d28d9] disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm"
           >
             {running ? (
               <>
@@ -403,127 +439,136 @@ export function EvaluationsWorkspace({
       </section>
 
       {/* 3 TABELE ROUTINGU BUDŻETOWEGO */}
-      <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="grid gap-3 md:grid-cols-3">
-          {TABLE_TABS.map((t) => {
-            const active = activeTable === t.key;
-            return (
-              <button
-                key={t.key}
-                type="button"
-                onClick={() => {
-                  setActiveTable(t.key);
-                  const firstInTab = evaluations.find(
-                    (ev) => ev.targetTable === t.key
-                  );
-                  if (firstInTab) setSelectedEvaluation(firstInTab);
-                }}
-                className={`rounded-2xl border p-4 text-left transition ${
-                  active
-                    ? "border-[#6D28D9] bg-violet-50/70 shadow-sm ring-1 ring-[#6D28D9]"
-                    : "border-slate-200 bg-slate-50/50 hover:border-violet-200 hover:bg-white"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold text-slate-900">
-                    {t.label}
-                  </span>
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-extrabold tabular-nums ${t.badgeColor}`}
-                  >
-                    {counts[t.key]}
-                  </span>
-                </div>
-                <p className="mt-1.5 text-[11px] leading-snug text-slate-600">
-                  {t.rule}
-                </p>
-              </button>
-            );
-          })}
+      <section className="flat-card">
+        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+          <h2 className="text-[15px] font-semibold text-[#374151]">
+            Tabele routingu budżetowego (3 klasyfikacje)
+          </h2>
+          <MoreHorizontal className="h-4 w-4 text-gray-400" />
         </div>
 
-        {/* Tabela projektów w wybranej zakładce */}
-        {visibleEvaluations.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 py-8 text-center text-xs text-slate-500">
-            Brak ocenionych projektów w kategorii{" "}
-            <strong>{EVALUATION_TABLE_LABELS[activeTable]}</strong>.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] border-collapse text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500">
-                  <th className="py-2.5 pr-3">Projekt</th>
-                  <th className="py-2.5 pr-3 text-right">Wynik S_total</th>
-                  <th className="py-2.5 pr-3 text-right">Średnia / %</th>
-                  <th className="py-2.5 pr-3 text-right">Koszt PERT (K_calk)</th>
-                  <th className="py-2.5 pr-3 text-right">Ryzyko R_kryt</th>
-                  <th className="py-2.5 text-right">Akcja</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {visibleEvaluations.map((ev) => {
-                  const isSelected = selectedEvaluation?.id === ev.id;
-                  return (
-                    <tr
-                      key={ev.id}
-                      onClick={() => setSelectedEvaluation(ev)}
-                      className={`cursor-pointer transition ${
-                        isSelected
-                          ? "bg-violet-50/80"
-                          : "hover:bg-slate-50"
-                      }`}
+        <div className="space-y-4 p-5">
+          <div className="grid gap-3 md:grid-cols-3">
+            {TABLE_TABS.map((t) => {
+              const active = activeTable === t.key;
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => {
+                    setActiveTable(t.key);
+                    const firstInTab = evaluations.find(
+                      (ev) => ev.targetTable === t.key
+                    );
+                    if (firstInTab) setSelectedEvaluation(firstInTab);
+                  }}
+                  className={`rounded - [2px] border p - 4 text - left transition ${
+                                        active
+                                          ? "border-[#7c3aed] bg-purple-50/60"
+                                          : "border-gray-200 bg-[#f9fafb] hover:border-purple-200 hover:bg-white"
+                                      } `}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-bold text-[#374151]">
+                      {t.label}
+                    </span>
+                    <span
+                      className={`rounded - [2px] px - 2 py - 0.5 text - xs font - bold tabular - nums ${ t.badgeColor } `}
                     >
-                      <td className="py-3 pr-3">
-                        <div className="font-bold text-slate-900">
-                          {ev.projectTitle}
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500">
-                          {new Date(ev.createdAt).toLocaleString("pl-PL")}
-                        </div>
-                      </td>
-                      <td className="py-3 pr-3 text-right font-extrabold tabular-nums text-[#4C1D95]">
-                        {ev.totalScore.toFixed(2)} / 50
-                      </td>
-                      <td className="py-3 pr-3 text-right tabular-nums text-slate-700">
-                        {ev.avgScore.toFixed(2)} ({ev.percentScore.toFixed(1)}%)
-                      </td>
-                      <td className="py-3 pr-3 text-right font-semibold tabular-nums text-slate-900">
-                        {formatPln(ev.totalPertCostPln)}
-                      </td>
-                      <td className="py-3 pr-3 text-right font-bold tabular-nums">
-                        <span
-                          className={
-                            ev.criticalRiskPercent >= 50
-                              ? "text-rose-700"
-                              : ev.criticalRiskPercent >= 25
-                                ? "text-amber-700"
-                                : "text-emerald-700"
-                          }
-                        >
-                          {ev.criticalRiskPercent.toFixed(1)}%
-                        </span>
-                      </td>
-                      <td className="py-3 text-right">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedEvaluation(ev);
-                          }}
-                          className="inline-flex items-center gap-1 rounded-lg bg-violet-100 px-2.5 py-1 text-[11px] font-bold text-[#4C1D95] hover:bg-violet-200"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                          <span>Raport</span>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      {counts[t.key]}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-[11px] leading-snug text-gray-500">
+                    {t.rule}
+                  </p>
+                </button>
+              );
+            })}
           </div>
-        )}
+
+          {visibleEvaluations.length === 0 ? (
+            <div className="rounded-[2px] border border-dashed border-gray-300 py-8 text-center text-xs text-gray-500">
+              Brak ocenionych projektów w kategorii{" "}
+              <strong>{EVALUATION_TABLE_LABELS[activeTable]}</strong>.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px] border-collapse text-left text-xs">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-[#f9fafb] text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                    <th className="py-2.5 pl-3 pr-3">Projekt</th>
+                    <th className="py-2.5 pr-3 text-right">Wynik S_total</th>
+                    <th className="py-2.5 pr-3 text-right">Średnia / %</th>
+                    <th className="py-2.5 pr-3 text-right">
+                      Koszt PERT (K_calk)
+                    </th>
+                    <th className="py-2.5 pr-3 text-right">Ryzyko R_kryt</th>
+                    <th className="py-2.5 pr-3 text-right">Akcja</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {visibleEvaluations.map((ev) => {
+                    const isSelected = selectedEvaluation?.id === ev.id;
+                    return (
+                      <tr
+                        key={ev.id}
+                        onClick={() => setSelectedEvaluation(ev)}
+                        className={`cursor - pointer transition ${
+                                        isSelected ? "bg-purple-50/70" : "hover:bg-gray-50"
+                                      } `}
+                      >
+                        <td className="py-3 pl-3 pr-3">
+                          <div className="font-semibold text-[#374151]">
+                            {ev.projectTitle}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-gray-400">
+                            {new Date(ev.createdAt).toLocaleString("pl-PL")}
+                          </div>
+                        </td>
+                        <td className="py-3 pr-3 text-right font-bold tabular-nums text-[#6d28d9]">
+                          {ev.totalScore.toFixed(2)} / 50
+                        </td>
+                        <td className="py-3 pr-3 text-right tabular-nums text-gray-600">
+                          {ev.avgScore.toFixed(2)} ({ev.percentScore.toFixed(1)}
+                          %)
+                        </td>
+                        <td className="py-3 pr-3 text-right font-semibold tabular-nums text-[#374151]">
+                          {formatPln(ev.totalPertCostPln)}
+                        </td>
+                        <td className="py-3 pr-3 text-right font-bold tabular-nums">
+                          <span
+                            className={
+                              ev.criticalRiskPercent >= 50
+                                ? "text-rose-700"
+                                : ev.criticalRiskPercent >= 25
+                                  ? "text-amber-700"
+                                  : "text-[#6d28d9]"
+                            }
+                          >
+                            {ev.criticalRiskPercent.toFixed(1)}%
+                          </span>
+                        </td>
+                        <td className="py-3 pr-3 text-right">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedEvaluation(ev);
+                            }}
+                            className="inline-flex items-center gap-1 rounded-[2px] bg-[#7c3aed] px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-[#6d28d9]"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            <span>Raport</span>
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Szczegółowy raport wybranej oceny */}
