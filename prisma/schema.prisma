@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Domain {
+  TECHNOLOGICZNY
+  EDUKACYJNY
+  ADMINISTRACYJNY
+}
+
+enum Pathway {
+  REPLIKACJA
+  TRANSFER_TECHNOLOGII
+  BADANIA_ROZWOJ
+  KOMERCJALIZACJA
+}
+
+enum SimilarityStatus {
+  UNIKALNE
+  POKREWNE
+  POTENCJALNY_DUPLIKAT
+}
+
+enum SourceType {
+  UCZELNIA
+  SZKOLA
+  JST
+  REJESTR_PATENTOWY
+  BAZA_GRANTOWA
+  INKUBATOR_CTT
+  INNE
+}
+
+enum SourceAvailability {
+  DOSTEPNE
+  OGRANICZONE
+  BLAD_POBIERANIA
+}
+
+enum EvaluationTable {
+  TABELA_GLOWNA
+  TABELA_DRUGORZEDNA
+  ARCHIWUM_ODRZUCONE
+}
+
+model DataSource {
+  id              String             @id @default(cuid())
+  url             String             @unique
+  registryName    String
+  institutionType SourceType
+  lastScannedAt   DateTime           @default(now())
+  availability    SourceAvailability @default(DOSTEPNE)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  innovations     Innovation[]
+}
+
+model Innovation {
+  id            String              @id @default(cuid())
+  title         String
+  summary       String
+  problem       String
+  solution      String
+  domain        Domain
+  creator       String?
+  institution   String?
+  isPreIndexed  Boolean             @default(false)
+  verifiedFacts Json
+  sourceId      String
+  source        DataSource          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  scoring       ScoringBreakdown?
+  similarities  SimilarityMatch[]
+  pathways      TransferPathway[]
+  evaluations   ProjectEvaluation[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([domain])
+  @@index([isPreIndexed])
+  @@index([institution])
+  @@index([title])
+}
+
+model ScoringBreakdown {
+  id                  String     @id @default(cuid())
+  innovationId        String     @unique
+  innovation          Innovation @relation(fields: [innovationId], references: [id], onDelete: Cascade)
+  implementationLevel Int
+  trl                 Int?
+  innovativeness      Int
+  transferPotential   Int
+  credibilityIndex    Int
+  credibilityDetails  Json
+  aiEstimates         Json
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}
+
+model SimilarityMatch {
+  id                    String           @id @default(cuid())
+  innovationId          String
+  innovation            Innovation       @relation(fields: [innovationId], references: [id], onDelete: Cascade)
+  registry              String
+  matchedTitle          String
+  matchedReferenceId    String
+  matchPercent          Float
+  status                SimilarityStatus
+  functionalDifferences String
+  createdAt             DateTime         @default(now())
+
+  @@index([innovationId])
+}
+
+model TransferPathway {
+  id           String     @id @default(cuid())
+  innovationId String
+  innovation   Innovation @relation(fields: [innovationId], references: [id], onDelete: Cascade)
+  pathway      Pathway
+  rationale    String
+  targetGroups String[]
+  kpis         Json
+  createdAt    DateTime   @default(now())
+
+  @@index([innovationId])
+}
+
+model ScanJob {
+  id           String   @id @default(cuid())
+  kind         String
+  target       String
+  status       String
+  startedAt    DateTime @default(now())
+  durationMs   Int
+  recordsFound Int
+  innovationId String?
+  errors       Json?
+}
+
+model AdminSettings {
+  id                  String   @id @default("default")
+  maxBudgetPln        Float    @default(250000)
+  toleranceMultiplier Float    @default(1.20)
+  updatedAt           DateTime @updatedAt
+}
+
+model ProjectEvaluation {
+  id                     String          @id @default(cuid())
+  innovationId           String?
+  innovation             Innovation?     @relation(fields: [innovationId], references: [id], onDelete: SetNull)
+  projectTitle           String
+  projectDescription     String
+  advocateReport         Json
+  skepticReport          Json
+  verifierLogs           Json
+  arbiterReport          Json
+  c1ChallengeFit         Float
+  c2Originality          Float
+  c3UsabilityUx          Float
+  c4Completeness         Float
+  c5Scalability          Float
+  totalScore             Float
+  avgScore               Float
+  percentScore           Float
+  pertMvpCostPln         Float
+  pertPilotCostPln       Float
+  totalPertCostPln       Float
+  criticalRiskPercent    Float
+  budgetLimitSnapshotPln Float
+  targetTable            EvaluationTable
+  durationMs             Int
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  @@index([targetTable])
+  @@index([innovationId])
+  @@index([createdAt])
+}

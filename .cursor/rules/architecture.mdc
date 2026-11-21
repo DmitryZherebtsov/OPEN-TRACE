@@ -1,0 +1,45 @@
+---
+description: Obowiązkowe reguły architektury, bezpieczeństwa, licencjonowania EUPL-1.2 i logiki domenowej OPEN TRACE — Radar Innowacji (HackNation 2026)
+alwaysApply: true
+---
+
+# Reguły Architektury — OPEN TRACE (Radar Innowacji, HackNation 2026)
+
+## 1. Stos technologiczny
+- **Framework:** Next.js (App Router, katalog `src/`), TypeScript (`strict: true`), Tailwind CSS.
+- **Baza danych i ORM:** PostgreSQL + Prisma ORM (`@prisma/client`, `prisma`).
+- **Parsowanie i walidacja:** `cheerio`, `pdf-parse`, `zod`, `lucide-react`.
+- **Język aplikacji:** 100% interfejsu użytkownika, etykiet, komunikatów błędów, promptów systemowych LLM, rekordów w bazie danych, debat agentów oraz dokumentacji musi być w naturalnym, profesjonalnym **języku polskim**.
+
+## 2. Zgodność z licencją EUPL-1.2
+- Repozytorium publikowane jest przez Ministerstwo Cyfryzacji na licencji **EUPL-1.2** (`package.json` → `"license": "EUPL-1.2"`, plik `LICENSE` w katalogu głównym).
+- **Zakazane zależności:** nigdy nie instaluj pakietów na licencji AGPL ani restrykcyjnych pakietów komercyjnych.
+- **Brak vendor lock-in LLM:** nigdy nie instaluj klienckich SDK konkretnych dostawców AI (np. `openai`, `@anthropic-ai/sdk`). Wszelkie zapytania do modeli językowych wykonuj wyłącznie po stronie serwera poprzez standardowe `fetch` HTTPS REST do endpointu zgodnego z OpenAI Chat Completions API konfigurowanego w `.env` (`LLM_API_URL`, `LLM_API_KEY`, `LLM_MODEL`, `LLM_FAST_MODEL`).
+
+## 3. Domeny Podręcznika Oslo 2018 i Anti-Scope
+- Trzy równorzędne domeny innowacji:
+  - `TECHNOLOGICZNY` — oceniany na skali `TRL 1–9` (pole `trl` typu `Int` 1–9).
+  - `EDUKACYJNY` — pole `trl` MUSI mieć wartość `null` i być renderowane w UI jako `TRL: N/D`.
+  - `ADMINISTRACYJNY` — pole `trl` MUSI mieć wartość `null` i być renderowane w UI jako `TRL: N/D`.
+- **Anti-Scope (bezwzględny zakaz):** nie wolno tworzyć publicznych formularzy zgłaszania pomysłów przez użytkowników, sieci społecznościowych, modułów crowdfundingu ani pośrednictwa inwestycyjnego / płatności.
+
+## 4. Protokół „Fakty vs AI”
+- Zawsze ściśle rozdzielaj:
+  1. **Warstwę faktów źródłowych (`verifiedFacts`)** — wyłącznie dane wprost obecne w źródle (cytaty dosłowne, instytucja, data publikacji, URL, formalny identyfikator, metryki autorów, budżet/koszt). Brakujące dane MUSZĄ być zapisane jako `null` i wyświetlane jako `"Brak danych w źródle"`.
+  2. **Warstwę analityczną AI (`aiEstimates`)** oraz **deterministyczne obliczenia kodu** (`credibilityIndex`, podobieństwo, ścieżki transferu).
+
+## 5. System Wieloagentowej Oceny Projektów („Oceny”)
+- Każda ocena projektu realizuje deterministyczny potok 4 agentów:
+  1. Równoległa debata **AI 1 (Adwokat)** + **AI 2 (Sceptyk)** (15 podkategorii w 5 kategoriach, koszty MVP i pilotażu w PLN, min. 5 przypadków referencyjnych).
+  2. **AI 4 (Weryfikator Źródeł / Fast-Check)** — realne pobranie treści każdego URL (z ochroną SSRF) i odrzucenie halucynacji aż do uzyskania co najmniej 5 zweryfikowanych linków.
+  3. **AI 3 (Arbiter)** — ostateczny werdykt wyłącznie na podstawie projektu, raportów AI 1/AI 2 i zweryfikowanych źródeł z AI 4.
+- **Deterministyczna matematyka w TypeScript (nigdy przez LLM):**
+  - Średnie kategorii $C_i = (p_{i,1} + p_{i,2} + p_{i,3}) / 3$, wynik łączny $S_{total} = \sum_{i=1}^5 C_i$ (5–50 pkt), $S_{avg} = S_{total} / 5$, $S_{\%} = (S_{total} / 50) \times 100$.
+  - Koszty PERT: $K_{MVP\_ost} = (K_{MVP\_AI1} + 4 K_{MVP\_AI3} + K_{MVP\_AI2}) / 6$, $K_{PILOT\_ost} = (K_{PILOT\_AI1} + 4 K_{PILOT\_AI3} + K_{PILOT\_AI2}) / 6$, $K_{calk} = K_{MVP\_ost} + K_{PILOT\_ost}$.
+  - Wskaźnik Ryzyka Krytycznego: $R_{kryt} = (N_{kryt\_niezaadresowane} / N_{kryt\_wszystkie}) \times 100$ (lub `0`, gdy $N_{kryt\_wszystkie} = 0$).
+  - Routing budżetowy względem $B_{limit} = 1{,}20 \times B_{max}$: $S_{total} < 25 \Rightarrow$ `ARCHIWUM_ODRZUCONE`, w przeciwnym razie $K_{calk} \le B_{limit} \Rightarrow$ `TABELA_GLOWNA`, inaczej `TABELA_DRUGORZEDNA`.
+
+## 6. Bezpieczeństwo i RODO
+- **Ochrona SSRF:** każde pobieranie zewnętrznego URL (zarówno Tor B skaner OSINT, jak i AI 4 Weryfikator Źródeł) musi przejść przez `validateSafeUrl` (tylko `http:`/`https:`, blokada `localhost`, `*.local`, `*.internal` oraz wszystkich prywatnych/loopback/link-local/zarezerwowanych zakresów IPv4 i IPv6 po rozwiązaniu DNS, także na przekierowaniach).
+- **Sekrety:** `LLM_API_KEY` pozostaje wyłącznie po stronie serwera i nigdy nie trafia do klienta ani logów.
+- **RODO (Zero PII):** aplikacja nie zbiera danych osobowych użytkowników, adresów IP ani plików śledzących; przełącznik perspektywy użytkownika działa wyłącznie lokalnie (`React state` / `localStorage`).
